@@ -1,2 +1,0 @@
-# yongqcai
-Individual Project
