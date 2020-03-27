@@ -4,8 +4,8 @@ var mysql = require('mysql');
 var connection = mysql.createConnection({
   host: 'localhost',
   user: 'root',
-  password: '123456',
-  database: 'nodebase'
+  password: 'xb261233',
+  database: 'test-sql'
 });
 // 开始连接
 connection.connect();
@@ -61,13 +61,201 @@ http.createServer(function (req, res) {
 
         console.log("\n【API - 提交留言信息】");
 
+        result = JSON.parse(result);
+
+        let id = result.userid; // id
+        let userName = result.username; // 用户名
+        let messageText = result.message; // 留言内容
+        let time = getNowFormatDate(); // 时间
+
+        if (!messageText) {
+          res.end("登录失败，留言内容为空！");
+          return;
+        } else if (messageText.length > 140) {
+          res.end("登录失败，字数超过限制！");
+          return;
+        } else {
+
+          // 新增的 SQL 语句及新增的字段信息
+          let addSql = "INSERT INTO demo_message(user_message, user_id, user_name, time) VALUES(?, ?, ?, ?)";
+          let addSqlParams = [messageText, id, userName, time];
+
+          // 连接 SQL 并实施语句
+          connection.query(addSql, addSqlParams, function (error1, response1) {
+            if (error1) { // 如果 SQL 语句错误
+              throw error1;
+            } else {
+              console.log("\n新增成功！");
+
+              // 返回数据
+              res.write(JSON.stringify({
+                code: "0",
+                message: "新增成功！"
+              }));
+
+              // 结束响应
+              res.end();
+            }
+          })
+        }
+
+
       } else if (pathName == "/login") { // 登录
 
         console.log("\n【API - 登录】");
+        console.log("\n【API - 登录】");
+
+        result = JSON.parse(result);
+
+        let username = result.username; // 用户名
+        let password = result.password; // 密码
+
+        if (!username) { // 用户名为空
+          res.end("登录失败，用户名为空！");
+          return;
+        } else if (!password) { // 密码为空
+          res.end("登录失败，密码为空！");
+          return;
+        } else if (username.length > 10) {
+          res.end("登录失败，姓名过长！");
+          return;
+        } else if (password.length > 20) {
+          res.end("登录失败，密码过长！");
+          return;
+        } else {
+
+          // 新增的 SQL 语句及新增的字段信息
+          let readSql = "SELECT * FROM demo_user WHERE user_name  = '" + username + "'";
+
+          // 连接 SQL 并实施语句
+          connection.query(readSql, function (error1, response1) {
+            if (error1) {
+              throw error1;
+            } else {
+              if (response1 == undefined || response1.length == 0) { // 不存在用户
+                res.end("\n不存在该用户！");
+                return;
+              } else { // 存在用户
+                console.log("\n存在该用户！");
+
+                let newRes = JSON.parse(JSON.stringify(response1));
+                console.log(newRes);
+
+                if (newRes[0].user_password == password) { // 密码正确
+                  // 返回数据
+                  res.write(JSON.stringify({
+                    code: "0",
+                    message: "登录成功！",
+                    data: {
+                      id: newRes[0].id,
+                      userName: newRes[0].user_name
+                    }
+                  }));
+
+                  res.end();
+                } else { // 密码错误
+                  // 返回数据
+                  res.write(JSON.stringify({
+                    code: "1",
+                    message: "登录失败，密码错误！"
+                  }));
+
+                  res.end();
+                }
+                // 判断密码正确与否完毕
+              }
+              // 存在用户处理结束
+            }
+          });
+        }
 
       } else if (pathName == "/register") { // 注册
 
         console.log("\n【API - 注册】");
+
+        result = JSON.parse(result)
+
+        let username = result.username;
+        let password = result.password;
+        let time = getNowFormatDate();
+
+        if (!username) {
+          res.end('注册失败，用户名为空。')
+          return
+        } else if (!password) {
+          res.end("注册失败，密码为空！")
+          return
+        } else if (username.length > 10) {
+          res.end("注册失败，姓名过长！");
+          return;
+        } else if (password.length > 20) {
+          res.end("注册失败，密码过长！");
+          return;
+        } else {
+
+
+          // 查询 demo_user 表
+          // 使用 Promise 的原因是因为中间调用了两次数据库，而数据库查询是异步的，所以需要用 Promise。
+          new Promise((resolve, reject) => {
+            // 新增的 SQL 语句及新增的字段信息
+            let readSql = "SELECT * FROM demo_user";
+
+            // 连接 SQL 并实施语句
+            connection.query(readSql, function (error1, response1) {
+              if (error1) {
+                throw error1
+              } else {
+                console.log("\nSQL 查询结果：");
+                // 将结果先去掉 RowDataPacket，再转换为 json 对象
+                let newRes = JSON.parse(JSON.stringify(response1))
+                console.log('newRes', newRes)
+
+                // 判断姓名重复与否
+                let userNameRepeat = false;
+                for (let item in newRes) {
+                  if (newRes[item].user_name == username) {
+                    userNameRepeat = true
+                  }
+                }
+
+                //如果姓名重复
+                if (userNameRepeat) {
+                  res.end("注册失败，姓名重复！");
+                  return
+                } else if (newRes.length > 300) {
+                  res.end("注册失败，名额已满！")
+                  return
+                } else {
+                  resolve()
+                }
+              }
+            })
+          }).then(() => {
+            // 新增的 SQL 语句及新增的字段信息
+            let addSql = "INSERT INTO demo_user(user_name,user_password, time) VALUES(?,?,?)";
+            let addSqlParams = [result.username, result.password, time];
+
+            connection.query(addSql, addSqlParams, function (error2, response2) {
+              if (error2) {
+                console.log("新增错误：")
+                console.log(error2)
+                return
+              } else {
+                console.log("\nSQL 查询结果：");
+                console.log('response2', response2);
+                console.log("\n注册成功！");
+
+                //返回数据
+                res.write(JSON.stringify({
+                  code: 0,
+                  message: '注册成功！'
+                }))
+
+                res.end();
+              }
+            })
+          })
+        }
 
       }
       // 接口信息处理完毕
@@ -87,7 +275,37 @@ http.createServer(function (req, res) {
 
       console.log("\n【API - 获取留言信息】");
 
-    } else if(pathName == "/") { // 首页
+      // 解析 url 参数部分
+      let params = url.parse(req.url, true).query;
+
+      console.log("\n参数为：");
+      console.log(params);
+
+      // 新增的 SQL 语句及新增的字段信息
+      let readSql = "SELECT * FROM demo_message";
+
+      // 连接 SQL 并实施语句
+      connection.query(readSql, function (error1, response1) {
+        if (error1) {
+          throw error1;
+        } else {
+
+          let newRes = JSON.parse(JSON.stringify(response1));
+          console.log(newRes);
+
+          // 返回数据
+          res.write(JSON.stringify({
+            code: "1",
+            message: "查询成功！",
+            data: newRes
+          }));
+
+          // 结束响应
+          res.end();
+        }
+      });
+
+    } else if (pathName == "/") { // 首页
       res.writeHead(200, {
         "Content-Type": "text/html;charset=UTF-8"
       });
