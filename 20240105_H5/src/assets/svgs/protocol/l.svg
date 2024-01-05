@@ -1,0 +1,23 @@
+<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Component / Elements">
+<g id="Button / Icon" filter="url(#filter0_b_2047_2085)">
+<rect width="40" height="40" rx="20" fill="black" fill-opacity="0.3"/>
+<g id="arrow - left">
+<g id="Group">
+<g id="Group_2">
+<path id="Vector" opacity="0.4" d="M17.77 16.52L22.82 20.31V25.92C22.82 26.88 21.66 27.36 20.98 26.68L15.8 21.51C15.4012 21.1107 15.1772 20.5694 15.1772 20.005C15.1772 19.4407 15.4012 18.8994 15.8 18.5L17.77 16.52V16.52Z" fill="white"/>
+<path id="Vector_2" d="M22.82 14.0799V20.3099L17.77 16.5199L20.98 13.3099C21.66 12.6399 22.82 13.1199 22.82 14.0799Z" fill="white"/>
+</g>
+</g>
+</g>
+</g>
+</g>
+<defs>
+<filter id="filter0_b_2047_2085" x="-31" y="-31" width="102" height="102" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feGaussianBlur in="BackgroundImageFix" stdDeviation="15.5"/>
+<feComposite in2="SourceAlpha" operator="in" result="effect1_backgroundBlur_2047_2085"/>
+<feBlend mode="normal" in="SourceGraphic" in2="effect1_backgroundBlur_2047_2085" result="shape"/>
+</filter>
+</defs>
+</svg>
